@@ -22,14 +22,14 @@ Then:
 
 2. [Build the k6 binary](https://github.com/grafana/xk6#command-usage):
   ```bash
-  $ xk6 build --with github.com/grafana/xk6-amqp@latest
+  $ xk6 build --with github.com/alex-tkachyk/xk6-amqp@latest
   ```
 
 ## Development
 To make development a little smoother, use the `Makefile` in the root folder. The default target will format your code, run tests, and create a `k6` binary with your local code rather than from GitHub.
 
 ```shell
-git clone git@github.com:grafana/xk6-amqp.git
+git clone https://github.com/alex-tkachyk/xk6-amqp.git
 cd xk6-amqp
 make
 ```
