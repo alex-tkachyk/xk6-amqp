@@ -71,6 +71,17 @@ type ListenOptions struct {
 	Args      amqpDriver.Table
 }
 
+// GetOptions defines options for getting first message from an AMQP queue or wait some time for one if the queue is empty
+type GetOptions struct {
+	QueueName         string
+	Consumer          string
+	Exclusive         bool
+	NoLocal           bool
+	NoWait            bool
+	Args              amqpDriver.Table
+	WaitingTimeoutSec int // how long to wait for the message if the queue is empty, 0 (do not wait) by default
+}
+
 const messagepack = "application/x-msgpack"
 
 // Start establishes a session with an AMQP server given the provided options.
@@ -168,6 +179,48 @@ func (amqp *AMQP) Listen(options ListenOptions) error {
 		}
 	}()
 	return err
+}
+
+// Get first message from an AMQP queue or wait some time for one if the queue is empty. Empty string is returned if no message.
+func (amqp *AMQP) Get(options GetOptions) (string, error) {
+	msg := ""
+
+	ch, err := amqp.Connection.Channel()
+	if err != nil {
+		return msg, err
+	}
+	defer func() {
+		_ = ch.Close()
+	}()
+
+	msgs, err := ch.Consume(
+		options.QueueName,
+		options.Consumer,
+		true,
+		options.Exclusive,
+		options.NoLocal,
+		options.NoWait,
+		options.Args,
+	)
+	if err != nil {
+		return msg, err
+	}
+	
+	timeout := options.WaitingTimeoutSec
+
+	if timeout <= 0 {
+		timeout = 1
+	}
+
+	select {
+	case m := <-msgs:
+		// message received
+		msg = string(m.Body)
+		return msg, err
+	case <-time.After(time.Duration(timeout) * time.Second):
+		// timeout
+		return msg, err
+	}
 }
 
 func init() {
