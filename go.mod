@@ -1,4 +1,4 @@
-module github.com/grafana/xk6-amqp
+module github.com/alex-tkachyk/xk6-amqp
 
 go 1.17
 
