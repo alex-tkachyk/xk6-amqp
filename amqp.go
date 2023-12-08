@@ -196,7 +196,7 @@ func (amqp *AMQP) Get(options GetOptions) (string, error) {
 	msgs, err := ch.Consume(
 		options.QueueName,
 		options.Consumer,
-		true,
+		false,
 		options.Exclusive,
 		options.NoLocal,
 		options.NoWait,
