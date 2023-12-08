@@ -216,6 +216,7 @@ func (amqp *AMQP) Get(options GetOptions) (string, error) {
 	case m := <-msgs:
 		// message received
 		msg = string(m.Body)
+		err := m.Ack(false)
 		return msg, err
 	case <-time.After(time.Duration(timeout) * time.Second):
 		// timeout
